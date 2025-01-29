@@ -5,7 +5,7 @@ FROM python:${PYTHON_VERSION} AS build-stage
 
 WORKDIR /app
 
-COPY . .
+COPY . /app
 
 FROM python:${PYTHON_VERSION}-slim AS run-stage
 
@@ -13,15 +13,12 @@ ENV PYTHONUNBUFFERED=1
 
 WORKDIR /app
 
+COPY --from=build-stage /app /app
 
-
-COPY --from=build-stage /app .
+RUN pip install --upgrade pip
 
 RUN pip install -r requirements.txt
 
-RUN pip install --upgrade pip
-RUN python3 manage.py migrate
-
 EXPOSE 8080
 
-CMD ["python", "manage.py", "runserver", "0.0.0.0:8080"]
+CMD ["python3", "manage.py", "runserver", "0.0.0.0:8080"]
